@@ -1,0 +1,23 @@
+﻿<Window x:Class="PolimasterIrDADevicesManagerGUI.GUI.CommandMapperWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:PolimasterIrDADevicesManagerGUI.GUI"
+        mc:Ignorable="d"
+        Title="Command mapper" Height="506" Width="450" ResizeMode="NoResize">
+    <Grid>
+        <Border Margin="0,431,0,0" BorderThickness="1" BorderBrush="Black">
+            <Grid>
+                <Button x:Name="save_button" Content="Copy" Margin="295,8,10,9" Click="save_button_Click" IsEnabled="False" />
+                <Button x:Name="stop_button" Content="Stop" Margin="150,8,153,9" Click="stop_button_Click" IsEnabled="False" />
+                <Button x:Name="start_button" Content="Start" Margin="10,9,298,9" Click="start_button_Click"/>
+            </Grid>
+        </Border>
+        <ScrollViewer x:Name="main_scrollviewer" Margin="0,0,0,53">
+            <TextBlock TextWrapping="NoWrap" x:Name="main_textblock">
+
+            </TextBlock>
+        </ScrollViewer>
+    </Grid>
+</Window>

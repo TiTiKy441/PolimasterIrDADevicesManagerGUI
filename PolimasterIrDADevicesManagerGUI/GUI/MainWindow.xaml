@@ -1,0 +1,44 @@
+﻿<Window x:Class="PolimasterIrDADevicesManagerGUI.GUI.MainWindow"
+        ResizeMode="NoResize"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:PolimasterIrDADevicesManagerGUI.GUI"
+        mc:Ignorable="d"
+        Title="IrDA Manager" Height="444" Width="268">
+    <Grid>
+        <ListView x:Name="irda_device_listview" ScrollViewer.VerticalScrollBarVisibility="Disabled" ScrollViewer.HorizontalScrollBarVisibility="Disabled" d:ItemsSource="{d:SampleData ItemCount=1}" SelectionMode="Single" SelectionChanged="irda_device_listview_SelectionChanged" HorizontalAlignment="Center" VerticalAlignment="Top" Height="121" Width="268">
+            <ListView.ItemContainerStyle>
+                <Style TargetType="{x:Type ListViewItem}">
+                    <Setter Property="BorderBrush" Value="LightGray" />
+                    <Setter Property="BorderThickness" Value="0,0,0,1" />
+                </Style>
+            </ListView.ItemContainerStyle>
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Header="Name" DisplayMemberBinding="{Binding DeviceName}" Width="163"/>
+                    <GridViewColumn Header="Address" DisplayMemberBinding="{Binding DeviceAddress}" Width="100"/>
+                </GridView>
+            </ListView.View>
+        </ListView>
+        <Border BorderBrush="Black" BorderThickness="1" Height="168" Width="248" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,190,0,0">
+            <Grid HorizontalAlignment="Center" Width="248" Height="168" VerticalAlignment="Center">
+                <Button x:Name="open_settings_manager_button" Content="Open settings manager" Margin="15,13,15,130" IsEnabled="False" Click="open_settings_manager_button_Click"/>
+                <Button x:Name="open_history_reader_button" Content="Open history reader" Margin="15,43,15,100" IsEnabled="False" Click="open_history_reader_button_Click"/>
+                <Button x:Name="open_eeprom_memory_manager_button" Content="Open EEPROM memory manager" Margin="15,73,15,70" IsEnabled="False"/>
+                <Button x:Name="open_command_mapper_button" Content="Open command mapper" Margin="15,133,15,10" IsEnabled="False" Click="open_command_mapper_button_Click"/>
+                <Button x:Name="open_irda_manager_button" Content="Open IrDA communication" Margin="15,103,15,40" IsEnabled="False" Click="open_irda_manager_button_Click"/>
+            </Grid>
+        </Border>
+        <Border BorderBrush="Black" BorderThickness="1" Height="70" Width="248" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,121,0,0">
+            <Grid HorizontalAlignment="Center" VerticalAlignment="Center" Width="248" Height="65">
+                <Button x:Name="connect_button" Content="Connect" Margin="17,32,16,5" Click="ConnectButton_Click" IsEnabled="False" />
+                <ComboBox x:Name="protocol_selection_combobox" Margin="17,5,16,32"/>
+            </Grid>
+        </Border>
+        <Border BorderBrush="Black" BorderThickness="1" Height="49" Width="248" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,358,0,0">
+            <Button x:Name="disconnect_button" Content="Disconnect" Margin="14,9,13,9" Click="disconnect_button_Click" IsEnabled="False"/>
+        </Border>
+    </Grid>
+</Window>

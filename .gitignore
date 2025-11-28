@@ -54,3 +54,5 @@ TestResult.xml
 nunit-*.xml
 
 *.user
+/.vs
+/PolimasterIrDADevicesManagerGUI/Properties
