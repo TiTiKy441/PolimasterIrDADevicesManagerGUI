@@ -6,6 +6,9 @@ This software is based on the reverse engineering of the polimaster's IrDA commu
 # Manual
 This software was mainly made for testing out different devices and their IrDA protocols. That's why there are so much test windows like Command mapper, IrDA communications window and an EEPROM manager window. It may not be the most pleasant program to use for an ordinary user, but, for devices like PM1401GN, this program works significantly better than the PM PRD app. It's more pleasant to use and also has bigger functionality, including changing the device's calibration value as well as changing the device's overload threshold and viewing the battery status.
 
+## Currently supported devices
+There are not a lot of supported devices, well, in fact, only PM1401GN was tested due to the fact that this is the only device the author has.
+
 # Main window
 
 ![irda_manager_showcase](https://github.com/user-attachments/assets/448a0009-613c-4ab7-bfea-37dca4653c6b)
