@@ -17,11 +17,8 @@ namespace PolimasterIrDADevicesManagerGUI.Device.Protocols
     public abstract class PMDeviceBaseProtocol : IrDADevice
     {
 
-        protected SemaphoreSlim _mcSemaphoreSlim = new SemaphoreSlim(int.MaxValue);
 
-        public readonly bool IsLegacyFormat = false;
-
-        public PMDeviceBaseProtocol(IrDAClient irdaClient, IrDAEndPoint endpoint, bool legacyFormat = false) : base(irdaClient, endpoint)
+        public PMDeviceBaseProtocol(IrDAClient irdaClient, IrDAEndPoint endpoint) : base(irdaClient, endpoint)
         {
             SetupCommunicationCommands();
         }
@@ -35,64 +32,20 @@ namespace PolimasterIrDADevicesManagerGUI.Device.Protocols
             CommunicationCommands["Ok4"] =        new byte[] { 160, 0, 8, 114, 0, 5 };
             CommunicationCommands["Ok5"] =        new byte[] { 160, 0, 8, 114, 0 };
             CommunicationCommands["OkArr"] =      new byte[] { 160, 0, 0, 114, 0, 0, 0 };
+            CommunicationCommands["OkNext"] =     new byte[] { 144, 0, 54, 114, 0 };
 
             CommunicationCommands["McRead"] =     new byte[] { 131, 0, 5, 177, 0 }; // Address at the end
             CommunicationCommands["McWrite2"] =   new byte[] { 130, 0, 10, 177, 0, 114, 0, 5, 0, 0 }; // Address after 177 and before 114
             CommunicationCommands["McWriteArr"] = new byte[] { 130, 0, 10, 177, 0, 242 }; // Address after 177 and before 242
+            CommunicationCommands["McReadNext"] = new byte[] { 131, 0, 3, 177, 0 };
         }
         
-
-        public void WriteArrToMC(byte address, byte[] data)
-        {
-            List<byte> toSend = new List<byte>(CommunicationCommands["McWriteArr"]);
-            toSend.AddRange(data);
-            toSend[4] = address;
-            try
-            {
-                _mcSemaphoreSlim.Wait();
-                TransmitAndCheck(toSend.ToArray(), CommunicationCommands["Ok3"]);
-            }
-            finally
-            {
-                _mcSemaphoreSlim.Release();
-            }
-        }
-
         public async Task WriteArrToMCAsync(byte address, byte[] data, CancellationToken cancellationToken)
         {
             List<byte> toSend = new List<byte>(CommunicationCommands["McWriteArr"]);
             toSend.AddRange(data);
             toSend[4] = address;
-            try
-            {
-                await _mcSemaphoreSlim.WaitAsync(cancellationToken);
-                await TransmitAndCheckAsync(toSend.ToArray(), CommunicationCommands["Ok3"], cancellationToken);
-            }
-            finally
-            {
-                _mcSemaphoreSlim.Release();
-            }
-        }
-
-        public void Write2ToMC(byte address, byte[] data)
-        {
-            if (data.Length != 2)
-            {
-                throw new ArgumentException("Must be 2 bytes long", nameof(data));
-            }
-            byte[] send = CommunicationCommands["McWrite2"];
-            send[4] = address;
-            send[8] = data[0];
-            send[9] = data[1];
-            try
-            {
-                _mcSemaphoreSlim.Wait();
-                TransmitAndCheck(send, CommunicationCommands["Ok3"]);
-            }
-            finally
-            {
-                _mcSemaphoreSlim.Release();
-            }
+            await TransmitAndCheckAsync(toSend.ToArray(), CommunicationCommands["Ok3"], cancellationToken);
         }
 
         public async Task Write2ToMCAsync(byte address, byte[] data, CancellationToken cancellationToken)
@@ -105,50 +58,66 @@ namespace PolimasterIrDADevicesManagerGUI.Device.Protocols
             send[4] = address;
             send[8] = data[0];
             send[9] = data[1];
-            try
-            {
-                await _mcSemaphoreSlim.WaitAsync(cancellationToken);
-                await TransmitAndCheckAsync(send, CommunicationCommands["Ok3"], cancellationToken);
-            }
-            finally
-            {
-                _mcSemaphoreSlim.Release();
-            }
+            await TransmitAndCheckAsync(send, CommunicationCommands["Ok3"], cancellationToken);
         } 
 
         public async Task<byte[]> ReadFromMCAsync(byte address, CancellationToken cancellationToken)
         {
-            byte[] received;
-            try
-            {
-                byte[] send = CommunicationCommands["McRead"].ToArray();
-                send[4] = address;
-                await _mcSemaphoreSlim.WaitAsync(cancellationToken);
-                received = await TransmitAsync(send, cancellationToken);
-            }
-            finally
-            {
-                _mcSemaphoreSlim.Release();
-            }
-
+            byte[] send = CommunicationCommands["McRead"].ToArray();
+            send[4] = address;
+            byte[] received = await TransmitAsync(send, cancellationToken);
             return GetBytesFromResponse(received);
         }
 
-        public byte[] ReadFromMC(byte address)
+        public async Task<byte[]> ReadArrFromMCAsync(byte address, CancellationToken cancellationToken)
         {
-            byte[] received;
             try
             {
-                byte[] send = CommunicationCommands["McRead"].ToArray();
+                await _dataSendSemaphore.WaitAsync(cancellationToken);
+
+                List<byte> total = new List<byte>();
+                byte[] send = CommunicationCommands["McRead"];
                 send[4] = address;
-                _mcSemaphoreSlim.Wait();
-                received = Transmit(send);
+                byte[] received = await UncheckedTransmitAsync(send, cancellationToken);
+                int receiveCount = 1;
+                while (receiveCount > 0)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+                    receiveCount = GetSizeOfNextChunk(received);
+                    for (int i = 5; i < receiveCount; i++)
+                    {
+                        total.Add(received[i]);
+                    }
+                    received = await UncheckedTransmitAsync(CommunicationCommands["McReadNext"], cancellationToken);
+                }
+                return total.ToArray();
             }
             finally
             {
-                _mcSemaphoreSlim.Release();
+                _dataSendSemaphore.Release();
             }
-            return GetBytesFromResponse(received);
+        }
+        
+
+        private int GetSizeOfNextChunk(IList<byte> buff)
+        {
+            byte[] array = CommunicationCommands["OkNext"];
+            if (buff.Count < array.Length)
+            {
+                return -1;
+            }
+            for (int i = 1; i < array.Length; i++)
+            {
+                if (i != 2 && buff[i] != array[i])
+                {
+                    return -1;
+                }
+            }
+            if (buff[0] == 144 || buff[0] == 160)
+            {
+                return 256 * buff[4] + buff[5] - 3;
+            }
+            return -1;
         }
 
         /// <summary>
@@ -172,44 +141,41 @@ namespace PolimasterIrDADevicesManagerGUI.Device.Protocols
                 return new byte[4] { received[4], received[5], received[6], received[7] };
             }
             // OkArr resp
-            bool flagOkArray = true;
-            byte[] okArray = CommunicationCommands["OkArr"].ToArray();
-            okArray[1] = (byte)((short)received.Length >> 8);
-            okArray[2] = (byte)received.Length;
-            okArray[4] = (byte)((short)(received.Length - 3) >> 8);
-            okArray[5] = (byte)(received.Length - 3);
-            for (int j = 0; j < 6; j++)
+
+            try
             {
-                if (received[j] != okArray[j])
+                bool flagOkArray = true;
+                byte[] okArray = CommunicationCommands["OkArr"].ToArray();
+                okArray[1] = (byte)((short)received.Length >> 8);
+                okArray[2] = (byte)received.Length;
+                okArray[4] = (byte)((short)(received.Length - 3) >> 8);
+                okArray[5] = (byte)(received.Length - 3);
+                for (int j = 0; j < 6; j++)
                 {
-                    flagOkArray = false;
+                    if (received[j] != okArray[j])
+                    {
+                        flagOkArray = false;
+                    }
+                }
+                if (flagOkArray)
+                {
+                    byte[] ret = new byte[received.Length - 6];
+                    Buffer.BlockCopy(received, 6, ret, 0, ret.Length);
+                    return ret;
                 }
             }
-            if (flagOkArray)
+            catch(IndexOutOfRangeException)
             {
-                byte[] ret = new byte[received.Length - 6];
-                System.Buffer.BlockCopy(received, 6, ret, 0, ret.Length);
-                return ret;
+                // Empty
             }
 
             throw new UnrecognizedReplyException("Unknown response format");
-        }
-
-        public ushort ReadUshortFromMC(byte address)
-        {
-            byte[] array = ReadFromMC(address);
-            return (ushort)(array[0] | array[1] << 8);
         }
 
         public async Task<ushort> ReadUshortFromMCAsync(byte address, CancellationToken cancellationToken)
         {
             byte[] array = await ReadFromMCAsync(address, cancellationToken);
             return (ushort)(array[0] | array[1] << 8);
-        }
-
-        public void WriteUshortToMC(byte address, ushort value)
-        {
-            Write2ToMC(address, new byte[2] { (byte)value, (byte)(value >> 8) });
         }
 
         public async Task WriteUshortToMCAsync(byte address, ushort value, CancellationToken cancellationToken)

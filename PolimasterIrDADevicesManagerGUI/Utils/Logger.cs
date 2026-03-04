@@ -1,4 +1,6 @@
-﻿namespace PolimasterIrDADevicesManagerGUI.Utils
+﻿using System.Windows;
+
+namespace PolimasterIrDADevicesManagerGUI.Utils
 {
     internal class Logger
     {
@@ -30,6 +32,12 @@
         public static void Enable(string message, string moduleName = DefaultModuleName)
         {
             Log(message, moduleName, '*', ConsoleColor.Green);
+        }
+
+        public static void Crash(string message, int exitCode = -1)
+        {
+            MessageBox.Show(message);
+            Environment.Exit(exitCode);
         }
     }
 }

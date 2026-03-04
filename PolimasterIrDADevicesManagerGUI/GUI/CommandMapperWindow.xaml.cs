@@ -1,17 +1,5 @@
 ﻿using PolimasterIrDADevicesManagerGUI.Device.Protocols;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace PolimasterIrDADevicesManagerGUI.GUI
 {
@@ -48,7 +36,8 @@ namespace PolimasterIrDADevicesManagerGUI.GUI
             main_textblock.Text += string.Format("Device: {0}" + Environment.NewLine, IrDA.IrDAPortManager.ConnectedDevice?.DeviceName);
             main_textblock.Text += string.Format("Avoid values: {0}" + Environment.NewLine, string.Join(" ", AvoidValues.ToList().ConvertAll(x => x.ToString()).ToArray()));
 
-            Task.Run(async () =>
+            _cancellationTokenSource = new();
+            Task.Factory.StartNew(async () =>
             {
                 this.Dispatcher.Invoke(() => 
                 {
@@ -99,8 +88,6 @@ namespace PolimasterIrDADevicesManagerGUI.GUI
         private void stop_button_Click(object sender, RoutedEventArgs e)
         {
             _cancellationTokenSource.Cancel();
-            Thread.Sleep(1000);
-            _cancellationTokenSource = new();
         }
 
         private void save_button_Click(object sender, RoutedEventArgs e)

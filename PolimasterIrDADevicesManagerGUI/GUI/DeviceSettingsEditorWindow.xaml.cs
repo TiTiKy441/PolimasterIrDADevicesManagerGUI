@@ -63,7 +63,7 @@ namespace PolimasterIrDADevicesManagerGUI.GUI
                         }
                     }
 
-                    parameterWrapPanel.Children.Add(new Label() { Content = parameter.Units, });
+                    if (parameter.Units is not null) parameterWrapPanel.Children.Add(new Label() { Content = parameter.Units, });
                     parameters_stackpanel.Children.Add(parameterWrapPanel);
                 }
             }
@@ -71,12 +71,7 @@ namespace PolimasterIrDADevicesManagerGUI.GUI
 
         private void cancel_tasks_button_Click(object sender, RoutedEventArgs e)
         {
-            Task.Run(async () =>
-            {
-                _cancellationTokenSource.Cancel();
-                await Task.Delay(0);
-                if (!_cancellationTokenSource.TryReset()) _cancellationTokenSource = new();
-            });
+            _cancellationTokenSource.Cancel();
         }
 
         private string GetDisplayedParameterValue(DeviceParameterInfo info)
@@ -147,6 +142,7 @@ namespace PolimasterIrDADevicesManagerGUI.GUI
 
         private void fetch_all_button_Click(object sender, RoutedEventArgs e)
         {
+            _cancellationTokenSource = new();
             DeviceParameterInfo[] parameters = Device.GetSupportedParameters();
             for (int i = 0; i < parameters.Length; i++)
             {
@@ -169,6 +165,7 @@ namespace PolimasterIrDADevicesManagerGUI.GUI
 
         private void save_to_device_button_Click(object sender, RoutedEventArgs e)
         {
+            _cancellationTokenSource = new();
             foreach (DeviceParameterInfo parameter in Device.GetSupportedParameters())
             {
                 if (!parameter.Editable) continue;

@@ -1,0 +1,65 @@
+﻿<Window x:Class="PolimasterIrDADevicesManagerGUI.GUI.EEPROMManagerWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:PolimasterIrDADevicesManagerGUI.GUI"
+        mc:Ignorable="d"
+        Title="EEPROM Manager" Width="310" Height="390"
+        ResizeMode="NoResize"
+        >
+    <Grid Width="295" Height="350">
+        <Grid Height="75" VerticalAlignment="Bottom">
+            <Label Content="Start address:" FontSize="9" Margin="10,2,220,51"/>
+            <Label Content="End address:" FontSize="9" Margin="154,2,79,51"/>
+            <TextBox x:Name="start_address_textblock" HorizontalAlignment="Left" Margin="75,7,0,54" Text="0" FontSize="9" PreviewTextInput="NumericTextBox_PreviewTextInput" Width="32"/>
+            <TextBox x:Name="end_address_textblock" HorizontalAlignment="Left" Margin="216,7,0,54" Text="0" FontSize="9" PreviewTextInput="NumericTextBox_PreviewTextInput" Width="32"/>
+            <Button x:Name="read_button" Content="Read" FontSize="9" HorizontalAlignment="Left" Margin="16,31,0,0" VerticalAlignment="Top" Height="17" Width="86" Click="read_button_Click"/>
+            <Button x:Name="write_button" Content="Write" FontSize="9" HorizontalAlignment="Left" Margin="16,53,0,0" VerticalAlignment="Top" Height="17" Width="86" Click="write_button_Click"/>
+            <Button x:Name="load_button" Content="Load file" FontSize="9" HorizontalAlignment="Left" Margin="107,31,0,0" VerticalAlignment="Top" Height="17" Width="86" Click="load_button_Click"/>
+            <Button x:Name="save_button" Content="Save file" FontSize="9" HorizontalAlignment="Left" Margin="107,53,0,0" VerticalAlignment="Top" Height="17" Width="86" Click="save_button_Click"/>
+            <Button x:Name="cancel_button" Content="Cancel" FontSize="9" HorizontalAlignment="Left" Margin="198,31,0,0" VerticalAlignment="Top" Height="17" Width="80" Click="cancel_button_Click"/>
+            <Button x:Name="clear_button" Content="Clear" FontSize="9" HorizontalAlignment="Left" Margin="198,53,0,0" VerticalAlignment="Top" Height="17" Width="80" Click="clear_button_Click"/>
+        </Grid>
+        <ListView Height="275" VerticalAlignment="Top" x:Name="memory_table_listview" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+            <ListView.ItemContainerStyle>
+                <Style TargetType="{x:Type ListViewItem}">
+                    <Setter Property="BorderBrush" Value="LightGray" />
+                    <Setter Property="BorderThickness" Value="0,0,0,1" />
+                    <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                </Style>
+            </ListView.ItemContainerStyle>
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Header="addr" Width="50" DisplayMemberBinding="{Binding Address}"/>
+                    <GridViewColumn Header="byte" Width="50">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBox Text="{Binding ByteValue, UpdateSourceTrigger=PropertyChanged}" 
+                                 BorderThickness="0" Background="Transparent"/>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn Header="bits" Width="100">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBox Text="{Binding BitValue, UpdateSourceTrigger=PropertyChanged}" 
+                                 BorderThickness="0" Background="Transparent"/>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn Header="uint16" Width="90">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBox Text="{Binding UshortValue, UpdateSourceTrigger=PropertyChanged}" 
+                                 BorderThickness="0" Background="Transparent"/>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                </GridView>
+            </ListView.View>
+        </ListView>
+
+
+    </Grid>
+</Window>

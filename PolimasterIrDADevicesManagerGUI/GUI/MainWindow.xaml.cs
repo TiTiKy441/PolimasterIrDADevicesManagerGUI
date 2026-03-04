@@ -18,6 +18,7 @@ namespace PolimasterIrDADevicesManagerGUI.GUI
 
         private IrDADevice? CreatedDevice;
 
+        // Different menu windows below:
         private DeviceSettingsEditorWindow? _settingsEditorWindow;
 
         private HistoryViewerWindow? _historyViewerWindow;
@@ -25,6 +26,8 @@ namespace PolimasterIrDADevicesManagerGUI.GUI
         private CommandMapperWindow? _commandMapperWindow;
 
         private RawIrDACommunicationWindow? _rawIrDACommunicationWindow;
+
+        private EEPROMManagerWindow? _eepromManagerWindow;
 
         public MainWindow()
         {
@@ -62,6 +65,10 @@ namespace PolimasterIrDADevicesManagerGUI.GUI
             {
                 _rawIrDACommunicationWindow.Close();
             }
+            if (_eepromManagerWindow != null)
+            {
+                _eepromManagerWindow.Close();
+            }
         }
 
         private void IrDAPortManager_OnDeviceDisconnected(object? sender, Events.IrDA.IrDADeviceDisconnectedEventArgs e)
@@ -78,6 +85,9 @@ namespace PolimasterIrDADevicesManagerGUI.GUI
                 disconnect_button.IsEnabled = false;
                 _settingsEditorWindow?.Close();
                 _historyViewerWindow?.Close();
+                _rawIrDACommunicationWindow?.Close();
+                _commandMapperWindow?.Close();
+                _eepromManagerWindow?.Close();
             });
         }
 
@@ -88,7 +98,7 @@ namespace PolimasterIrDADevicesManagerGUI.GUI
                 Title = string.Format("Connected to {0}", e.Device.DeviceName);
                 connect_button.IsEnabled = false;
                 CreatedDevice = ProtocolFactory.CreateNewInstance(ProtocolFactory.FindProtocolTypeByName(protocol_selection_combobox.SelectedItem.ToString()), IrDAPortManager.IrDAClient, IrDAPortManager.ConnectedDevice?.GetEndPoint());
-                if (CreatedDevice is EEPROMAccessProtocolDevice)
+                if (CreatedDevice is IDirectEEPROMAccessDevice)
                 {
                     open_eeprom_memory_manager_button.IsEnabled = true;
                 }
@@ -160,8 +170,11 @@ namespace PolimasterIrDADevicesManagerGUI.GUI
                     if (task.IsFaulted)
                     {
                         Logger.Error(string.Format("Unable to connect to {0} ({1})", info.DeviceName, task.Exception?.Message), ModuleName);
-                        MessageBox.Show(this, string.Format("Unable to connect to {0} ({1})", info.DeviceName, task.Exception?.Message), "Connection failed");
-                        connect_button.IsEnabled = true;
+                        this.Dispatcher.Invoke(() =>
+                        {
+                            MessageBox.Show(this, string.Format("Unable to connect to {0} ({1})", info.DeviceName, task.Exception?.Message), "Connection failed");
+                            connect_button.IsEnabled = true;
+                        });
                     }
                 });
             }
@@ -205,14 +218,30 @@ namespace PolimasterIrDADevicesManagerGUI.GUI
             {
                 _historyViewerWindow.Close();
             }
-            double? calibrationValue = null;
-            if (CreatedDevice is IDeviceWithCalibrationValue calibrationValueDevice)
+            Task.Run(async () =>
             {
-                // The only synchronious I/O call in the whole codebase so far :)
-                calibrationValue = calibrationValueDevice.ReadCalibrationValue();
-            }
-            _historyViewerWindow = new HistoryViewerWindow((IHistoryAccessDevice)CreatedDevice, calibrationValue);
-            _historyViewerWindow.Show();
+                double? calibrationValue = null;
+                if (CreatedDevice is IDeviceWithCalibrationValue calibrationValueDevice)
+                {
+                    try
+                    {
+                        calibrationValue = await calibrationValueDevice.ReadCalibrationValueAsync(CancellationToken.None);
+                    }
+                    catch(Exception e)
+                    {
+                        this.Dispatcher.Invoke(() =>
+                        {
+                            MessageBox.Show(this, string.Format("Unable to get calibration value! ({0})", e.Message), "Unable to get calibration value");
+                            return;
+                        });
+                    }
+                }
+                this.Dispatcher.Invoke(() =>
+                {
+                    _historyViewerWindow = new HistoryViewerWindow((IHistoryAccessDevice)CreatedDevice, calibrationValue);
+                    _historyViewerWindow.Show();
+                });
+            });
         }
 
         private void open_command_mapper_button_Click(object sender, RoutedEventArgs e)
@@ -241,6 +270,20 @@ namespace PolimasterIrDADevicesManagerGUI.GUI
             }
             _rawIrDACommunicationWindow = new RawIrDACommunicationWindow((IrDADevice)CreatedDevice);
             _rawIrDACommunicationWindow.Show();
+        }
+
+        private void open_eeprom_manager_button_Click(object sender, RoutedEventArgs e)
+        {
+            if (CreatedDevice is not IDirectEEPROMAccessDevice)
+            {
+                return;
+            }
+            if (_eepromManagerWindow != null)
+            {
+                _eepromManagerWindow.Close();
+            }
+            _eepromManagerWindow = new EEPROMManagerWindow((IDirectEEPROMAccessDevice)CreatedDevice);
+            _eepromManagerWindow.Show();
         }
     }
 }

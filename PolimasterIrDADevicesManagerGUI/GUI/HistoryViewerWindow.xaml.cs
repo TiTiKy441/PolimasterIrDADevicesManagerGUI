@@ -41,6 +41,7 @@ namespace PolimasterIrDADevicesManagerGUI.GUI
 
         private void read_history_button_Click(object sender, RoutedEventArgs e)
         {
+            _cancellationTokenSource = new();
             read_history_button.IsEnabled = false;
             cancel_button.IsEnabled = true;
             Device.ReadHistoryAsync(_cancellationToken).ContinueWith((task) =>
@@ -88,7 +89,6 @@ namespace PolimasterIrDADevicesManagerGUI.GUI
         private void cancel_button_Click(object sender, RoutedEventArgs e)
         {
             _cancellationTokenSource.Cancel();
-            if (!_cancellationTokenSource.TryReset()) _cancellationTokenSource = new();
         }
     }
 }

@@ -43,57 +43,10 @@ namespace PolimasterIrDADevicesManagerGUI.Device.Protocols.Implementations
 
         public DeviceParameterInfo FindParameterByType(int type) => SupportedParameters.First(x => x.Id == type);
 
-
-        public void WriteParameter(int parameter, object value) => WriteParameter((PM1401MDeviceParameterType)parameter, value);
-
         public async Task WriteParameterAsync(int parameter, object value, CancellationToken cancellationToken) => await WriteParameterAsync((PM1401MDeviceParameterType)parameter, value, cancellationToken);
 
-        public void WriteParameterAsString(int parameter, string value) => WriteParameterAsString((PM1401MDeviceParameterType)parameter, value);
-
         public async Task WriteParameterAsStringAsync(int parameter, string value, CancellationToken cancellationToken) => await WriteParameterAsStringAsync((PM1401MDeviceParameterType)parameter, value, cancellationToken);
-
-        public object ReadParameter(int parameter) => ReadParameter((PM1401MDeviceParameterType)parameter);
-
         public async Task<object> ReadParameterAsync(int parameter, CancellationToken cancellationToken) => await ReadParameterAsync((PM1401MDeviceParameterType)parameter, cancellationToken);
-
-        public object ReadParameter(PM1401MDeviceParameterType parameter)
-        {
-            switch (parameter)
-            {
-                case PM1401MDeviceParameterType.SerialNumber:
-                    return ReadSerialNumber();
-                case PM1401MDeviceParameterType.NGamma:
-                    return ReadGammaCoefficient();
-                case PM1401MDeviceParameterType.BatteryLevel:
-                    return ReadBatteryVoltage();
-                case PM1401MDeviceParameterType.BatteryCutoffLevel:
-                    return ReadBatteryThreshold();
-                case PM1401MDeviceParameterType.BatteryPercentage:
-                    return ReadBatteryPercentage();
-                case PM1401MDeviceParameterType.DateTime:
-                    return ReadDateTime();
-                case PM1401MDeviceParameterType.HistoryRecordingInterval:
-                    return ReadHistoryRecordInterval();
-                case PM1401MDeviceParameterType.AutoCalibration:
-                    return ReadAutoCalibrationEnabled();
-                case PM1401MDeviceParameterType.AlarmModeEditing:
-                    return ReadAlarmChangeEnabled();
-                case PM1401MDeviceParameterType.AlarmCoefficientEditing:
-                    return ReadCoefficientChangeEnabled();
-                case PM1401MDeviceParameterType.AudioAlarm:
-                    return ReadAudioAlarmEnabled();
-                case PM1401MDeviceParameterType.VibroAlarm:
-                    return ReadVibroAlarmEnabled();
-                case PM1401MDeviceParameterType.CalibrationValue:
-                    return ReadCalibrationValue();
-                case PM1401MDeviceParameterType.SafetyAlarm:
-                    return ReadSafetyAlarm();
-                case PM1401MDeviceParameterType.OverloadThreshold:
-                    return ReadOverloadThreshold();
-                default:
-                    throw new ArgumentException("Type not supported");
-            }
-        }
 
         public async Task<object> ReadParameterAsync(PM1401MDeviceParameterType parameter, CancellationToken cancellationToken)
         {
@@ -129,88 +82,6 @@ namespace PolimasterIrDADevicesManagerGUI.Device.Protocols.Implementations
                     return await ReadSafetyAlarmAsync(cancellationToken);
                 case PM1401MDeviceParameterType.OverloadThreshold:
                     return await ReadOverloadThresholdAsync(cancellationToken);
-                default:
-                    throw new ArgumentException("Type not supported");
-            }
-        }
-
-        public void WriteParameterAsString(PM1401MDeviceParameterType parameter, string value)
-        {
-            switch (parameter)
-            {
-                case PM1401MDeviceParameterType.CalibrationValue:
-                case PM1401MDeviceParameterType.NGamma:
-                case PM1401MDeviceParameterType.BatteryCutoffLevel:
-                    WriteParameter(parameter, double.Parse(value));
-                    break;
-
-                case PM1401MDeviceParameterType.DateTime:
-                    WriteParameter(parameter, DateTime.Parse(value));
-                    break;
-
-                case PM1401MDeviceParameterType.AlarmModeEditing:
-                case PM1401MDeviceParameterType.AlarmCoefficientEditing:
-                case PM1401MDeviceParameterType.AudioAlarm:
-                case PM1401MDeviceParameterType.VibroAlarm:
-                case PM1401MDeviceParameterType.AutoCalibration:
-                    WriteParameter(parameter, value.ToString().Trim() == "1");
-                    break;
-
-                case PM1401MDeviceParameterType.OverloadThreshold:
-                case PM1401MDeviceParameterType.HistoryRecordingInterval:
-                    WriteParameter(parameter, ushort.Parse(value));
-                    break;
-
-                case PM1401MDeviceParameterType.SafetyAlarm:
-                    WriteParameter(parameter, byte.Parse(value));
-                    break;
-
-                default:
-                    throw new ArgumentException("Type not supported");
-            }
-        }
-
-
-        public void WriteParameter(PM1401MDeviceParameterType parameter, object value)
-        {
-            switch (parameter)
-            {
-                case PM1401MDeviceParameterType.NGamma:
-                    WriteGammaCoefficient((double)value);
-                    break;
-                case PM1401MDeviceParameterType.BatteryCutoffLevel:
-                    WriteBatteryThreshold((double)value);
-                    break;
-                case PM1401MDeviceParameterType.DateTime:
-                    WriteDateTime((DateTime)value);
-                    break;
-                case PM1401MDeviceParameterType.HistoryRecordingInterval:
-                    WriteHistoryRecordInterval((ushort)value);
-                    break;
-                case PM1401MDeviceParameterType.AutoCalibration:
-                    WriteAutoCalibrationEnabled((bool)value);
-                    break;
-                case PM1401MDeviceParameterType.AlarmModeEditing:
-                    WriteAlarmChangeEnabled((bool)value);
-                    break;
-                case PM1401MDeviceParameterType.AlarmCoefficientEditing:
-                    WriteCoefficientChangeEnabled((bool)value);
-                    break;
-                case PM1401MDeviceParameterType.AudioAlarm:
-                    WriteAudioAlarmEnabled((bool)value);
-                    break;
-                case PM1401MDeviceParameterType.VibroAlarm:
-                    WriteVibroAlarmEnabled((bool)value);
-                    break;
-                case PM1401MDeviceParameterType.CalibrationValue:
-                    WriteCalibrationValue((double)value);
-                    break;
-                case PM1401MDeviceParameterType.SafetyAlarm:
-                    WriteSafetyAlarm((byte)value);
-                    break;
-                case PM1401MDeviceParameterType.OverloadThreshold:
-                    WriteOverloadThreshold((ushort)value);
-                    break;
                 default:
                     throw new ArgumentException("Type not supported");
             }
@@ -325,19 +196,9 @@ namespace PolimasterIrDADevicesManagerGUI.Device.Protocols.Implementations
 
         #region Overload threshold
 
-        public ushort ReadOverloadThreshold()
-        {
-            return ReadUshortFromEEPROM(22);
-        }
-
         public async Task<ushort> ReadOverloadThresholdAsync(CancellationToken cancellationToken)
         {
             return await ReadUshortFromEEPROMAsync(22, cancellationToken);
-        }
-
-        public void WriteOverloadThreshold(ushort newValue)
-        {
-            WriteUshortToEEPROM(22, newValue);
         }
 
         public async Task WriteOverloadThresholdAsync(ushort newValue, CancellationToken cancellationToken)
@@ -349,11 +210,6 @@ namespace PolimasterIrDADevicesManagerGUI.Device.Protocols.Implementations
 
         #region Serial number
 
-        public int ReadSerialNumber()
-        {
-            return int.Parse(GetStringValue(ReadFromMC(1)));
-        }
-
         public async Task<int> ReadSerialNumberAsync(CancellationToken cancellationToken)
         {
             return int.Parse(GetStringValue(await ReadFromMCAsync(1, cancellationToken)));
@@ -362,11 +218,6 @@ namespace PolimasterIrDADevicesManagerGUI.Device.Protocols.Implementations
         #endregion
 
         #region Date and time
-
-        public DateTime ReadDateTime()
-        {
-            return RawBytesConverter.Bytes3ToTime(ReadFromMC(213));
-        }
 
         public async Task<DateTime> ReadDateTimeAsync(CancellationToken cancellationToken)
         {
@@ -378,28 +229,13 @@ namespace PolimasterIrDADevicesManagerGUI.Device.Protocols.Implementations
             await WriteArrToMCAsync(213, RawBytesConverter.TimeTo3Bytes(value == null ? DateTime.Now : (DateTime)value), cancellationToken);
         }
 
-        public void WriteDateTime(DateTime? value = null)
-        {
-            WriteArrToMC(213, RawBytesConverter.TimeTo3Bytes(value == null ? DateTime.Now : (DateTime)value));
-        }
-
         #endregion
 
         #region Gamma N
 
-        public double ReadGammaCoefficient()
-        {
-            return ReadUshortFromMC(144) / 10.0d;
-        }
-
         public async Task<double> ReadGammaCoefficientAsync(CancellationToken cancellationToken)
         {
             return await ReadUshortFromMCAsync(144, cancellationToken) / 10.0d;
-        }
-
-        public void WriteGammaCoefficient(double value)
-        {
-            WriteUshortToMC(144, (ushort)(value * 10.0d));
         }
 
         public async Task WriteGammaCoefficientAsync(double value, CancellationToken cancellationToken)
@@ -411,20 +247,9 @@ namespace PolimasterIrDADevicesManagerGUI.Device.Protocols.Implementations
 
         #region History record interval
 
-        public ushort ReadHistoryRecordInterval()
-        {
-            return ReadUshortFromMC(209);
-        }
-
         public async Task<ushort> ReadHistoryRecordIntervalAsync(CancellationToken cancellationToken)
         {
             return await ReadUshortFromMCAsync(209, cancellationToken);
-        }
-
-        public void WriteHistoryRecordInterval(ushort value)
-        {
-            WriteUshortToMC(209, value);
-
         }
 
         public async Task WriteHistoryRecordIntervalAsync(ushort value, CancellationToken cancellationToken)
@@ -436,12 +261,6 @@ namespace PolimasterIrDADevicesManagerGUI.Device.Protocols.Implementations
 
         #region Battery voltage
 
-        public double ReadBatteryVoltage()
-        {
-            byte[] array = ReadFromMC(207);
-            return (array[0] + 256 * array[1]) * BatteryReadoutCoefficient / 4096.0;
-        }
-
         public async Task<double> ReadBatteryVoltageAsync(CancellationToken cancellationToken)
         {
             byte[] array = await ReadFromMCAsync(207, cancellationToken);
@@ -452,21 +271,10 @@ namespace PolimasterIrDADevicesManagerGUI.Device.Protocols.Implementations
 
         #region Battery threshold
 
-        public double ReadBatteryThreshold()
-        {
-            byte[] array = ReadFromMC(210);
-            return (array[0] + 256 * array[1]) * BatteryReadoutCoefficient / 4096.0;
-        }
-
         public async Task<double> ReadBatteryThresholdAsync(CancellationToken cancellationToken)
         {
             byte[] array = await ReadFromMCAsync(210, cancellationToken);
             return (array[0] + 256 * array[1]) * BatteryReadoutCoefficient / 4096.0;
-        }
-
-        public void WriteBatteryThreshold(double value)
-        {
-            WriteByteToEEPROM(7, (byte)(value * 4096.0 / BatteryReadoutCoefficient / 256));
         }
 
         public async Task WriteBatteryThresholdAsync(double value, CancellationToken cancellationToken)
@@ -478,13 +286,6 @@ namespace PolimasterIrDADevicesManagerGUI.Device.Protocols.Implementations
 
         #region Battery percentage
 
-        public double ReadBatteryPercentage()
-        {
-            double battVoltage = ReadBatteryVoltage();
-            double thresholdVoltage = ReadBatteryThreshold();
-            return (battVoltage - thresholdVoltage) / (1.5 - thresholdVoltage) * 100.0;
-        }
-
         public async Task<double> ReadBatteryPercentageAsync(CancellationToken cancellationToken)
         {
             double battVoltage = await ReadBatteryVoltageAsync(cancellationToken);
@@ -495,23 +296,6 @@ namespace PolimasterIrDADevicesManagerGUI.Device.Protocols.Implementations
         #endregion
 
         #region Clear history
-
-        public void ClearHistory()
-        {
-            TransmitCommandAndCheck("DelHistory", "Ok3");
-            /**
-            try
-            {
-                _dataSendSemaphore.Wait();
-                byte[] received = UncheckedTransmit(CommunicationCommands["DelHistory"]);
-                CheckResultAndThrow(received, CommunicationCommands["Ok3"]);
-            }
-            finally
-            {
-                _dataSendSemaphore.Release();
-            }
-            **/
-        }
 
         public async Task ClearHistoryAsync(CancellationToken cancellationToken)
         {
@@ -531,35 +315,6 @@ namespace PolimasterIrDADevicesManagerGUI.Device.Protocols.Implementations
         }
 
         #endregion
-
-        /// <summary>
-        /// Reads history from the device
-        /// </summary>
-        /// <returns>Array of readed history events in sequential order</returns>
-        public HistoryEventRecord[] ReadHistory()
-        {
-            try
-            {
-                _dataSendSemaphore.Wait();
-                List<PM1401MEventRecord> records = new List<PM1401MEventRecord>();
-                byte[] received = UncheckedTransmit(CommunicationCommands["GetHistory"]);
-                int recordsCount = 1;
-                while (recordsCount > 0)
-                {
-                    recordsCount = CheckHistoryResult(received) / PM1401MEventRecord.SingleRecordSize;
-                    for (int i = 0; i < recordsCount; i++)
-                    {
-                        records.Add(PM1401MEventRecord.ParseFromArray(received, PM1401MEventRecord.SingleRecordSize * i + 6));
-                    }
-                    received = UncheckedTransmit(CommunicationCommands["GetHistoryNext"]);
-                }
-                return records.ToArray();
-            }
-            finally
-            {
-                _dataSendSemaphore.Release();
-            }
-        }
 
         /// <summary>
         /// Reads history from the device asynchronously
@@ -623,19 +378,9 @@ namespace PolimasterIrDADevicesManagerGUI.Device.Protocols.Implementations
 
         #region Safety alarm
 
-        public byte ReadSafetyAlarm()
-        {
-            return ReadByteFromEEPROM(80);
-        }
-
         public async Task<byte> ReadSafetyAlarmAsync(CancellationToken cancellationToken)
         {
             return await ReadByteFromEEPROMAsync(80, cancellationToken);
-        }
-
-        public void WriteSafetyAlarm(byte value)
-        {
-            WriteByteToEEPROM(80, value);
         }
 
         public async Task WriteSafetyAlarmAsync(byte value, CancellationToken cancellationToken)
@@ -647,19 +392,9 @@ namespace PolimasterIrDADevicesManagerGUI.Device.Protocols.Implementations
 
         #region Auto calibration enabled
 
-        public bool ReadAutoCalibrationEnabled()
-        {
-            return ReadBitFromEEPROM(11, 4);
-        }
-
         public async Task<bool> ReadAutoCalibrationEnabledAsync(CancellationToken cancellationToken)
         {
             return await ReadBitFromEEPROMAsync(11, 4, cancellationToken);
-        }
-
-        public void WriteAutoCalibrationEnabled(bool value)
-        {
-            WriteBitToEEPROM(11, 4, value);
         }
 
         public async Task WriteAutoCalibrationEnabledAsync(bool value, CancellationToken cancellationToken)
@@ -675,19 +410,9 @@ namespace PolimasterIrDADevicesManagerGUI.Device.Protocols.Implementations
 
         #region Alarm change enabled
 
-        public bool ReadAlarmChangeEnabled()
-        {
-            return ReadBitFromEEPROM(9, 1);//IsAlarmChangeEnabled(ReadByteFromEEPROM(9));
-        }
-
         public async Task<bool> ReadAlarmChangeEnabledAsync(CancellationToken cancellationToken)
         {
             return await ReadBitFromEEPROMAsync(9, 1, cancellationToken);//IsAlarmChangeEnabled(await ReadByteFromEEPROMAsync(9, cancellationToken));
-        }
-
-        public void WriteAlarmChangeEnabled(bool value)
-        {
-            WriteBitToEEPROM(9, 1, value);
         }
 
         public async Task WriteAlarmChangeEnabledAsync(bool value, CancellationToken cancellationToken)
@@ -699,19 +424,9 @@ namespace PolimasterIrDADevicesManagerGUI.Device.Protocols.Implementations
 
         #region Coefficient change enabled
 
-        public bool ReadCoefficientChangeEnabled()
-        {
-            return ReadBitFromEEPROM(9, 2);//return IsCoefficientChangeEnabled(ReadByteFromEEPROM(9));
-        }
-
         public async Task<bool> ReadCoefficientChangeEnabledAsync(CancellationToken cancellationToken)
         {
             return await ReadBitFromEEPROMAsync(9, 2, cancellationToken);//return IsCoefficientChangeEnabled(await ReadByteFromEEPROMAsync(9, cancellationToken));
-        }
-
-        public void WriteCoefficientChangeEnabled(bool value)
-        {
-            WriteBitToEEPROM(9, 2, value);
         }
 
         public async Task WriteCoefficientChangeEnabledAsync(bool value, CancellationToken cancellationToken)
@@ -727,19 +442,9 @@ namespace PolimasterIrDADevicesManagerGUI.Device.Protocols.Implementations
 
         #region Audio alarm enabled
 
-        public bool ReadAudioAlarmEnabled()
-        {
-            return ReadBitFromEEPROM(10, 0);// IsAudioAlarmEnabled(ReadByteFromEEPROM(10));
-        }
-
         public async Task<bool> ReadAudioAlarmEnabledAsync(CancellationToken cancellationToken)
         {
             return await ReadBitFromEEPROMAsync(10, 0, cancellationToken);//IsAudioAlarmEnabled(await ReadByteFromEEPROMAsync(10, cancellationToken));
-        }
-
-        public void WriteAudioAlarmEnabled(bool value)
-        {
-            WriteBitToEEPROM(10, 0, value);
         }
 
         public async Task WriteAudioAlarmEnabledAsync(bool value, CancellationToken cancellationToken)
@@ -751,19 +456,9 @@ namespace PolimasterIrDADevicesManagerGUI.Device.Protocols.Implementations
 
         #region Vibro alarm enabled
 
-        public bool ReadVibroAlarmEnabled()
-        {
-            return ReadBitFromEEPROM(10, 1);
-        }
-
         public async Task<bool> ReadVibroAlarmEnabledAsync(CancellationToken cancellationToken)
         {
             return await ReadBitFromEEPROMAsync(10, 1, cancellationToken);//IsVibroAlarmEnabled(await ReadByteFromEEPROMAsync(10, cancellationToken));
-        }
-
-        public void WriteVibroAlarmEnabled(bool value)
-        {
-            WriteBitToEEPROM(10, 1, value);
         }
 
         public async Task WriteVibroAlarmEnabledAsync(bool value, CancellationToken cancellationToken)
@@ -775,25 +470,11 @@ namespace PolimasterIrDADevicesManagerGUI.Device.Protocols.Implementations
 
         #region Calibration value
 
-        public double ReadCalibrationValue()
-        {
-            byte[] array = ReadFromMC(201);
-            return array[1] * 100 + array[0] * 100.0 / 255.0;
-        }
-
         public async Task<double> ReadCalibrationValueAsync(CancellationToken cancellationToken)
         {
 
             byte[] array = await ReadFromMCAsync(201, cancellationToken);
             return array[1] * 100 + array[0] * 100.0 / 255.0;
-        }
-
-        public void WriteCalibrationValue(double value)
-        {
-            byte[] write = new byte[2];
-            write[0] = (byte)(value % 100.0 / (100.0 / 255.0));
-            write[1] = (byte)(value / 100);
-            WriteBytesToEEPROM(14, write);
         }
 
         public async Task WriteCalibrationValueAsync(double value, CancellationToken cancellationToken)
@@ -1048,11 +729,6 @@ namespace PolimasterIrDADevicesManagerGUI.Device.Protocols.Implementations
         {
             public PM1401MDeviceParameterInfo(PM1401MDeviceParameterType type, string name, bool changable, Type valueType, string? unit = null) : base((int)type, name, changable, valueType, unit)
             {
-            }
-
-            public override string ToString()
-            {
-                return string.Format("{0} - {1}", Id, Name);
             }
         }
 

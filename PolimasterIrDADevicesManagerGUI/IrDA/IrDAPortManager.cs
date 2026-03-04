@@ -2,6 +2,7 @@
 using InTheHand.Net.Sockets;
 using PolimasterIrDADevicesManagerGUI.Events.IrDA;
 using PolimasterIrDADevicesManagerGUI.Utils;
+using System.Net.Sockets;
 
 namespace PolimasterIrDADevicesManagerGUI.IrDA
 {
@@ -24,12 +25,12 @@ namespace PolimasterIrDADevicesManagerGUI.IrDA
         public static IrDADeviceInfo[] AvailableDevices { get; private set; } = Array.Empty<IrDADeviceInfo>();
 
         /// <summary>
-        /// Raises when a new device was discovered
+        /// Raises when a new device is discovered
         /// </summary>
         public static event EventHandler<NewIrDADeviceDiscoveredEventArgs>? OnNewDeviceDiscovered;
 
         /// <summary>
-        /// Raises when the of available devices changes
+        /// Raises when the list of available devices changes
         /// </summary>
         public static event EventHandler<AvailableIrDADevicesListChangedEventArgs>? OnDeviceListChanged;
 
@@ -93,11 +94,23 @@ namespace PolimasterIrDADevicesManagerGUI.IrDA
             {
                 if (task.IsFaulted)
                 {
-                    Logger.Error(string.Format("IrDA event notifier loop task crashed and exited! ({0})", task.Exception?.Message));
+                    Logger.Crash(string.Format("IrDA event notifier loop task crashed and exited! ({0})", task.Exception?.Message));
                 }
             });
             Logger.Enable(string.Format("IrDA manager started with {0} ms check loop delay", CheckLoopDelayMs), ModuleName);
         }
+
+        /**
+        public static void Restart()
+        {
+            if (_lastConnected != null)
+            {
+                IrDAClient.Close();
+                IrDAClient.Dispose();
+                _lastConnected = null;
+            }
+        }
+        **/
 
         /// <summary>
         /// Starts scanning for new devices on the IrDA port
@@ -136,7 +149,7 @@ namespace PolimasterIrDADevicesManagerGUI.IrDA
                     }
                     catch (Exception e)
                     {
-                        Logger.Warn(string.Format("IrDA scanning loop threw an exception: {0}", e.Message), ModuleName);
+                        Logger.Warn(string.Format("IrDA scanning loop task threw an exception: {0}", e.Message), ModuleName);
                     }
                 }
             }).ContinueWith((_) =>
@@ -152,7 +165,11 @@ namespace PolimasterIrDADevicesManagerGUI.IrDA
             if (!IrDAClient.Connected)
             {
                 Logger.Log(string.Format("Attempting to connect to {0}...", device.DeviceName), ModuleName);
-                IrDAClient.Connect(new IrDAEndPoint(device.DeviceAddress, device.DeviceName));
+                // For whatever reason PM1208 refuses to connect with a default configuration
+                // It need the service name to be set to IrDA:IrCOMM and for socket option 22 to be set to 255
+                // Not a very OOP fix but it works (in theory), so whatever
+                if (device.DeviceName.Contains("PM1208")) IrDAClient.Client.SetSocketOption((SocketOptionLevel)255, (SocketOptionName)22, true); // Otherwise PM1208 connects but outputs gibberish
+                IrDAClient.Connect(new IrDAEndPoint(device.DeviceAddress, (device.DeviceName.Contains("PM1208") ? "IrDA:IrCOMM" : device.DeviceName)));
                 _lastConnected = device;
                 Logger.Enable(string.Format("Connected successfully to {0}", device.DeviceName), ModuleName);
             }

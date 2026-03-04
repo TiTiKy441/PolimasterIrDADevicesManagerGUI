@@ -2,11 +2,18 @@
 using InTheHand.Net.Sockets;
 using PolimasterIrDADevicesManagerGUI.Exceptions;
 using System.Diagnostics;
-using System.IO;
 using System.Net.Sockets;
 
 namespace PolimasterIrDADevicesManagerGUI.IrDA
 {
+
+    /**
+     * Unchecked here means that the data stream has not been checked to be used.
+     * All of the checks which would prevent other data to slip in are supposed to be implemented on top of the Unchedked functions
+     **/
+    /// <summary>
+    /// Basic response-reply based IrDA transmission class
+    /// </summary>
     public abstract class IrDADevice : IDisposable
     {
 
@@ -28,11 +35,11 @@ namespace PolimasterIrDADevicesManagerGUI.IrDA
         public static int ResponseTimeout = 750;
 
         /// <summary>
-        /// Attempt to resend data this amount of times
+        /// Attempts to resend data this amount of times
         /// </summary>
         public static int ResendAttempts = 2;
 
-        public static bool DebugIrda = true;
+        public static bool DebugIrda = false;
 
         public IrDADevice(IrDAClient irdaClient, IrDAEndPoint endpoint)
         {
@@ -55,50 +62,8 @@ namespace PolimasterIrDADevicesManagerGUI.IrDA
             });
         }
 
-        public virtual byte[] Transmit(byte[] send, int receiveSize = 100)
-        {
-            try
-            {
-                _dataSendSemaphore.Wait();
-                return UncheckedTransmit(send, receiveSize);
-            }
-            finally
-            {
-                _dataSendSemaphore.Release();
-            }
-        }
-
-        protected virtual byte[] UncheckedTransmit(byte[] send, int receiveSize = 100)
-        {
-            while (!IrDAClient.Connected)
-            {
-            }
-            IrDAClient.Client.Send(send);
-            byte[] receive = new byte[receiveSize];
-            int receiveActual = IrDAClient.Client.Receive(receive);
-            return receive[0..receiveActual];
-        }
-
-        public virtual byte[][] TransmitSequence(byte[][] sendSequence, int receiveSize = 100)
-        {
-            try
-            {
-                _dataSendSemaphore.Wait();
-                List<byte[]> responses = new List<byte[]>(sendSequence.Length);
-                foreach (byte[] send in sendSequence)
-                {
-                    responses.Add(UncheckedTransmit(send, receiveSize));
-                }
-                return responses.ToArray();
-            }
-            finally
-            {
-                _dataSendSemaphore.Release();
-            }
-        }
-
         // Send a sequence of commands, IN ORDER, FOLLOWED BY EACH OTHER!!
-        public virtual async Task<byte[][]> TransmitSequenceAsync(byte[][] sendSequence, CancellationToken cancellationToken)
+        public async Task<byte[][]> TransmitSequenceAsync(byte[][] sendSequence, CancellationToken cancellationToken)
         {
             try
             {
@@ -118,7 +83,7 @@ namespace PolimasterIrDADevicesManagerGUI.IrDA
             }
         }
 
-        protected virtual async Task<byte[]> UncheckedTransmitAsync(byte[] send, CancellationToken cancellationToken)
+        protected async Task<byte[]> UncheckedTransmitAsync(byte[] send, CancellationToken cancellationToken)
         {
             if (DebugIrda) Console.Write("! C");
             while (!IrDAClient.Connected)
@@ -173,9 +138,7 @@ namespace PolimasterIrDADevicesManagerGUI.IrDA
             if (DebugIrda) Console.Write("!({0})", string.Join(" ", receive.ToList().ConvertAll(x => x.ToString()).ToArray()));
             return receive.ToArray();
         }
-
-        // This is virtual just to implement locks on it on top
-        public virtual async Task<byte[]> TransmitAsync(byte[] send, CancellationToken cancellationToken)
+        public async Task<byte[]> TransmitAsync(byte[] send, CancellationToken cancellationToken)
         {
             /**
              * Note to all future edits: async here doesnt work with the IrDAClient.Client, only through the stream
@@ -194,34 +157,15 @@ namespace PolimasterIrDADevicesManagerGUI.IrDA
             }
         }
 
-        protected byte[] TransmitCommand(string commandName, int receiveSize = 100)
-        {
-            return Transmit(CommunicationCommands[commandName], receiveSize);
-        }
-
         protected async Task<byte[]> TransmitCommandAsync(string commandName, CancellationToken cancellationToken)
         {
             return await TransmitAsync(CommunicationCommands[commandName], cancellationToken);
         }
 
-        protected byte[] TransmitCommandAndCheck(string commandName, string okName, int receiveSize = 100)
-        {
-            byte[] bytes = TransmitCommand(commandName, receiveSize);
-            CheckResultAndThrow(bytes, CommunicationCommands[okName]);
-            return bytes;
-        }
-        
         protected async Task<byte[]> TransmitCommandAndCheckAsync(string commandName, string okName, CancellationToken cancellationToken)
         {
             byte[] bytes = await TransmitCommandAsync(commandName, cancellationToken);
             CheckResultAndThrow(bytes, CommunicationCommands[okName]);
-            return bytes;
-        }
-
-        protected byte[] TransmitAndCheck(byte[] send, byte[] check, int receiveSize = 100)
-        {
-            byte[] bytes = Transmit(send, receiveSize);
-            CheckResultAndThrow(send, check);
             return bytes;
         }
 

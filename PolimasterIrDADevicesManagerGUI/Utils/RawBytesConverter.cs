@@ -1,10 +1,15 @@
-﻿using System.Text;
+﻿using System.CodeDom;
+using System.Text;
 
 namespace PolimasterIrDADevicesManagerGUI.Utils
 {
     static class RawBytesConverter
     {
 
+        public static int Bin2Dec(byte b)
+        {
+            return ((b & 240) >> 4) * 10 + (int)(b & 15);
+        }
 
         public static string GetStringValue(byte[] b)
         {
@@ -21,7 +26,7 @@ namespace PolimasterIrDADevicesManagerGUI.Utils
             return Math.Round(mant, 14);
         }
 
-        public static byte[] GetDoubleAsBytes(double value)
+        public static byte[] GetDouble(double value)
         {
             byte[] bytes = new byte[4];
             WriteDouble(value, bytes, 0);
@@ -88,6 +93,31 @@ namespace PolimasterIrDADevicesManagerGUI.Utils
             destination[startOffset + 1] = x[0];
             destination[startOffset + 2] = x[3];
             destination[startOffset + 3] = x[2];
+        }
+
+        /// <summary>
+        /// Writes a UInt32 (4 bytes) to an array at a specified index (startOffset)
+        /// </summary>
+        /// <param name="array">Byte array to write to</param>
+        /// <param name="value">Value to write</param>
+        /// <param name="startOffset">Start offset</param>
+        public static void WriteUInt(byte[] array, UInt32 value, int startOffset = 0)
+        {
+            array[startOffset + 0] = (byte)value;
+            array[startOffset + 1] = (byte)(value >> 8);
+            array[startOffset + 2] = (byte)(value >> 16);
+            array[startOffset + 3] = (byte)(value >> 24);
+        }
+
+        /// <summary>
+        /// Reads a UInt32 (4 bytes) from an array at a specified index (startOffset)
+        /// </summary>
+        /// <param name="array">Array to read from</param>
+        /// <param name="startOffset">Start offset</param>
+        /// <returns>Value</returns>
+        public static UInt32 ReadUInt(byte[] array, int startOffset = 0)
+        {
+            return (uint)(((array[startOffset + 3] * 256 + array[startOffset + 2]) * 256 + array[startOffset + 1]) * 256 + array[startOffset + 0]);
         }
 
         public static byte[] TimeTo4Bytes(DateTime dt)

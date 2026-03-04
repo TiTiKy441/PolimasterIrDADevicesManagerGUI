@@ -17,6 +17,7 @@ namespace PolimasterIrDADevicesManagerGUI.Device.Protocols
 
         static ProtocolFactory()
         {
+            //RegisterProtocol(typeof(PM1603ProtocolDevice),                              "PM1603");
             RegisterProtocol(typeof(PM1401GNProtocolDevice),                            "PM1401GN");
             RegisterProtocol(typeof(PM1401MProtocolDevice),                             "PM1401M");
             RegisterProtocol(typeof(EEPROMAccessProtocolDevice),                        "EEPROM Access");

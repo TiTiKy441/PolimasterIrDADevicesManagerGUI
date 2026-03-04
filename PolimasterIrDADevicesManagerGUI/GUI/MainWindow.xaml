@@ -26,7 +26,7 @@
             <Grid HorizontalAlignment="Center" Width="248" Height="168" VerticalAlignment="Center">
                 <Button x:Name="open_settings_manager_button" Content="Open settings manager" Margin="15,13,15,130" IsEnabled="False" Click="open_settings_manager_button_Click"/>
                 <Button x:Name="open_history_reader_button" Content="Open history reader" Margin="15,43,15,100" IsEnabled="False" Click="open_history_reader_button_Click"/>
-                <Button x:Name="open_eeprom_memory_manager_button" Content="Open EEPROM memory manager" Margin="15,73,15,70" IsEnabled="False"/>
+                <Button x:Name="open_eeprom_memory_manager_button" Content="Open EEPROM memory manager" Margin="15,73,15,70" IsEnabled="False" Click="open_eeprom_manager_button_Click"/>
                 <Button x:Name="open_command_mapper_button" Content="Open command mapper" Margin="15,133,15,10" IsEnabled="False" Click="open_command_mapper_button_Click"/>
                 <Button x:Name="open_irda_manager_button" Content="Open IrDA communication" Margin="15,103,15,40" IsEnabled="False" Click="open_irda_manager_button_Click"/>
             </Grid>

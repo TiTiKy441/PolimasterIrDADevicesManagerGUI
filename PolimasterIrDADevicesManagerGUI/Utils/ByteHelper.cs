@@ -1,9 +1,27 @@
 ﻿using System.Collections;
+using System.Text;
 
 namespace PolimasterIrDADevicesManagerGUI.Utils
 {
     public sealed class ByteHelper
     {
+
+        public static string GetBoolArrayAsString(bool[] arr)
+        {
+            StringBuilder str = new();
+            foreach (bool v in arr)
+            {
+                if (v)
+                {
+                    str = str.Append("1");
+                }
+                else
+                {
+                    str = str.Append("0");
+                }
+            }
+            return str.ToString();
+        }
 
         public static IEnumerable<bool> GetBits(byte b)
         {
@@ -59,6 +77,30 @@ namespace PolimasterIrDADevicesManagerGUI.Utils
         {
             array[startOffset + 0] = (byte)value;
             array[startOffset + 1] = (byte)(value >> 8);
+        }
+
+        /// <summary>
+        /// Please dont use without checks
+        /// </summary>
+        /// <param name="array"></param>
+        /// <returns></returns>
+        public static byte ReadByte(bool[] array)
+        {
+            byte result = 0;
+            // This assumes the array never contains more than 8 elements!
+            int index = 8 - array.Length;
+
+            // Loop through the array
+            foreach (bool b in array)
+            {
+                // if the element is 'true' set the bit at that position
+                if (b)
+                    result |= (byte)(1 << (7 - index));
+
+                index++;
+            }
+
+            return result;
         }
     }
 }
