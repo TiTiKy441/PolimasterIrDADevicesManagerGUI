@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PolimasterIrDADevicesManagerGUI.GUI"
         mc:Ignorable="d"
-        Title="IrDA communications" Height="323" Width="300" ResizeMode="NoResize">
+        Title="IrDA communications" Height="323" Width="300" ResizeMode="CanMinimize">
     <Grid Margin="0,10,0,0">
         <ScrollViewer x:Name="responses_scrollviewer" Margin="0,0,0,26">
             <TextBlock x:Name="responses_textblock">

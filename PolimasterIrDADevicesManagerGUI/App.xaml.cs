@@ -31,7 +31,7 @@ namespace PolimasterIrDADevicesManagerGUI
         {
             Logger.Important("Process exiting...");
             IrDAPortManager.Stop();
-            //FreeConsole();
+            FreeConsole();
         }
     }
 }

@@ -220,12 +220,14 @@ namespace PolimasterIrDADevicesManagerGUI.Device.Protocols.Implementations
 
         public async Task<double> ReadCalibrationTimeAsync(CancellationToken cancellationToken)
         {
-            return (await ReadByteFromEEPROMAsync(0, cancellationToken)) / 4.0d;
+            return (await ReadUshortFromMCAsync(145, cancellationToken)) / 4.0d;
+            //return (await ReadByteFromEEPROMAsync(0, cancellationToken)) / 4.0d;
         }
 
         public async Task WriteCalibrationTimeAsync(double newValue, CancellationToken cancellationToken)
         {
-            await WriteByteToEEPROMAsync(0, (byte)(newValue * 4.0d), cancellationToken);
+            await WriteUshortToMCAsync(145, (byte)(newValue * 4.0d), cancellationToken);
+            //await WriteByteToEEPROMAsync(0, (byte)(newValue * 4.0d), cancellationToken);
         }
 
         #endregion

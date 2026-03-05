@@ -168,7 +168,7 @@ namespace PolimasterIrDADevicesManagerGUI.IrDA
                 // For whatever reason PM1208 refuses to connect with a default configuration
                 // It need the service name to be set to IrDA:IrCOMM and for socket option 22 to be set to 255
                 // Not a very OOP fix but it works (in theory), so whatever
-                if (device.DeviceName.Contains("PM1208")) IrDAClient.Client.SetSocketOption((SocketOptionLevel)255, (SocketOptionName)22, true); // Otherwise PM1208 connects but outputs gibberish
+                if (device.DeviceName.Contains("PM1208")) IrDAClient.Client.SetSocketOption((SocketOptionLevel)255, IrDASocketOptionName.NineWireMode, true); // Otherwise PM1208 connects but outputs gibberish
                 IrDAClient.Connect(new IrDAEndPoint(device.DeviceAddress, (device.DeviceName.Contains("PM1208") ? "IrDA:IrCOMM" : device.DeviceName)));
                 _lastConnected = device;
                 Logger.Enable(string.Format("Connected successfully to {0}", device.DeviceName), ModuleName);

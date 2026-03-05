@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:PolimasterIrDADevicesManagerGUI.GUI"
         mc:Ignorable="d"
         Title="EEPROM Manager" Width="310" Height="390"
-        ResizeMode="NoResize"
+        ResizeMode="CanMinimize"
         >
     <Grid Width="295" Height="350">
         <Grid Height="75" VerticalAlignment="Bottom">
@@ -21,7 +21,7 @@
             <Button x:Name="cancel_button" Content="Cancel" FontSize="9" HorizontalAlignment="Left" Margin="198,31,0,0" VerticalAlignment="Top" Height="17" Width="80" Click="cancel_button_Click"/>
             <Button x:Name="clear_button" Content="Clear" FontSize="9" HorizontalAlignment="Left" Margin="198,53,0,0" VerticalAlignment="Top" Height="17" Width="80" Click="clear_button_Click"/>
         </Grid>
-        <ListView Height="275" VerticalAlignment="Top" x:Name="memory_table_listview" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+        <ListView Height="275" VerticalAlignment="Top" x:Name="memory_table_listview" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Disabled">
             <ListView.ItemContainerStyle>
                 <Style TargetType="{x:Type ListViewItem}">
                     <Setter Property="BorderBrush" Value="LightGray" />

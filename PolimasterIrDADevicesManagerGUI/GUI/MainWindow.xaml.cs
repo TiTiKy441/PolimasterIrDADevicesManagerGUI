@@ -23,7 +23,7 @@ namespace PolimasterIrDADevicesManagerGUI.GUI
 
         private HistoryViewerWindow? _historyViewerWindow;
 
-        private CommandMapperWindow? _commandMapperWindow;
+        private RawParameterEditorWindow? _rawParameterEditorWindow;
 
         private RawIrDACommunicationWindow? _rawIrDACommunicationWindow;
 
@@ -57,9 +57,9 @@ namespace PolimasterIrDADevicesManagerGUI.GUI
             {
                 _historyViewerWindow.Close();
             }
-            if (_commandMapperWindow != null)
+            if (_rawParameterEditorWindow != null)
             {
-                _commandMapperWindow.Close();
+                _rawParameterEditorWindow.Close();
             }
             if (_rawIrDACommunicationWindow != null)
             {
@@ -86,7 +86,7 @@ namespace PolimasterIrDADevicesManagerGUI.GUI
                 _settingsEditorWindow?.Close();
                 _historyViewerWindow?.Close();
                 _rawIrDACommunicationWindow?.Close();
-                _commandMapperWindow?.Close();
+                _rawParameterEditorWindow?.Close();
                 _eepromManagerWindow?.Close();
             });
         }
@@ -250,12 +250,12 @@ namespace PolimasterIrDADevicesManagerGUI.GUI
             {
                 return;
             }
-            if (_commandMapperWindow != null)
+            if (_rawParameterEditorWindow != null)
             {
-                _commandMapperWindow.Close();
+                _rawParameterEditorWindow.Close();
             }
-            _commandMapperWindow = new CommandMapperWindow((PMDeviceBaseProtocol)CreatedDevice);
-            _commandMapperWindow.Show();
+            _rawParameterEditorWindow = new RawParameterEditorWindow((PMDeviceBaseProtocol)CreatedDevice);
+            _rawParameterEditorWindow.Show();
         }
 
         private void open_irda_manager_button_Click(object sender, RoutedEventArgs e)

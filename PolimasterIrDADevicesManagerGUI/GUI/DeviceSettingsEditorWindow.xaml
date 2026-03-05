@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PolimasterIrDADevicesManagerGUI.GUI"
         mc:Ignorable="d"
-        ResizeMode="NoResize"
+        ResizeMode="CanMinimize"
         Title="Settings editor" Height="596" Width="365">
     <Grid>
         <ScrollViewer x:Name="parameters_scrollviewer" VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Disabled" Width="350" Height="478" HorizontalAlignment="Left" VerticalAlignment="Top">
